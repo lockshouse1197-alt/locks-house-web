@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locks House - ระบบจัดการประวัติลูกค้า</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg no-print">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold">Locks House</h1>
+                    <p class="text-purple-100">Salon & Organic Spa Management</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm">วันที่: <span id="currentDate"></span></p>
+                    <p class="text-sm">เวลา: <span id="currentTime"></span></p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-lg shadow-md mb-6 no-print">
+            <div class="flex border-b">
+                <button onclick="showTab('customer')" id="customerTab" class="px-6 py-3 font-medium text-purple-600 border-b-2 border-purple-600">
+                     จัดการลูกค้า
+                </button>
+                <button onclick="showTab('staff')" id="staffTab" class="px-6 py-3 font-medium text-gray-500 hover:text-purple-600">
+                    จัดการพนักงาน
+                </button>
+                <button onclick="showTab('history')" id="historyTab" class="px-6 py-3 font-medium text-gray-500 hover:text-purple-600">
+                     ประวัติบริการ
+                </button>
+                <button onclick="showTab('settings')" id="settingsTab" class="px-6 py-3 font-medium text-gray-500 hover:text-purple-600">
+                     ตั้งค่า
+                </button>
+            </div>
+        </div>
+
+        <!-- Customer Management Tab -->
+        <div id="customerContent" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Add New Service Form -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4"> บันทึกบริการใหม่</h2>
+                    <form id="serviceForm" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เลขที่ใบเสร็จ</label>
+                                <input type="text" id="receiptNumber" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">สาขา</label>
+                                <select id="branch" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                                    <option value="Locks House Salon">Locks House Salon</option>
+                                    <option value="Locks House Organic Spa">Locks House Organic Spa</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อลูกค้า</label>
+                                <input type="text" id="customerName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทร</label>
+                                <input type="tel" id="customerPhone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">บริการ</label>
+                            <select id="serviceType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required>
+                                <option value="">เลือกบริการ</option>
+                                <option value="ตัดผม">ตัดผม</option>
+                                <option value="สีผม">สีผม</option>
+                                <option value="ดัดผม">ดัดผม</option>
+                                <option value="ยืดผม">ยืดผม</option>
+                                <option value="ทรีทเมนต์">ทรีทเมนต์</option>
+                                <option value="ซื้อสินค้า">ซื้อสินค้า</option>
+                                <option value="สปาผ่อนคลาย">สปาผ่อนคลาย</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ช่างหลัก</label>
+                                <select id="mainStylist" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required>
+                                    <option value="">เลือกช่าง</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ผู้ช่วย</label>
+                                <select id="assistant" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                                    <option value="">เลือกผู้ช่วย</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ราคา (บาท)</label>
+                                <input type="number" id="price" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ส่วนลด (บาท)</label>
+                                <input type="number" id="discount" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" value="0">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                            <textarea id="notes" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" rows="3"></textarea>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="submit" class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+                                 บันทึกข้อมูล
+                            </button>
+                            <button type="button" onclick="printReceipt()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200">
+                                 พิมพ์ใบเสร็จ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Recent Services -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4"> บริการล่าสุด</h2>
+                    <div id="recentServices" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Recent services will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Management Tab -->
+        <div id="staffContent" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Add Staff Form -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4"> เพิ่มพนักงานใหม่</h2>
+                    <form id="staffForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล</label>
+                            <input type="text" id="staffName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label>
+                            <select id="staffPosition" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500" required>
+                                <option value="">เลือกตำแหน่ง</option>
+                                <option value="ช่างหลัก">ช่างหลัก</option>
+                                <option value="ผู้ช่วย">ผู้ช่วย</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทร</label>
+                            <input type="tel" id="staffPhone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
+                             เพิ่มพนักงาน
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Staff List -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4"> รายชื่อพนักงาน</h2>
+                    <div id="staffList" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- Staff list will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service History Tab -->
+        <div id="historyContent" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800"> ประวัติการบริการทั้งหมด</h2>
+                    <div class="flex gap-2">
+                        <input type="text" id="searchHistory" placeholder="ค้นหาลูกค้า..." class="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500">
+                        <button onclick="exportToGoogleSheets()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200">
+                             ส่งไป Google Sheets
+                        </button>
+                    </div>
+                </div>
+                <div id="serviceHistory" class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">เลขที่</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">วันที่</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">ลูกค้า</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">บริการ</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">ช่าง</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">ราคา</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- History data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsContent" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4"> ตั้งค่าระบบ</h2>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Google Sheets Integration</h3>
+                        <p class="text-sm text-gray-600 mb-3">เชื่อมต่อกับ Google Sheets เพื่อสำรองข้อมูล</p>
+                        <div class="bg-green-50 border border-green-200 rounded-md p-4">
+                            <p class="text-sm text-green-800">
+                                <strong> เชื่อมต่อแล้ว:</strong> ระบบจะส่งข้อมูลไป Google Sheets อัตโนมัติทุกครั้งที่บันทึก
+                            </p>
+                            <p class="text-xs text-green-600 mt-1">
+                                Sheet ID: 1cCdvG4JJHmwqFPL_JBvWF6J8AcLUWkSsmkWRzRt1t3w
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">การตั้งค่าใบเสร็จ</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เลขที่เริ่มต้น</label>
+                                <input type="number" id="receiptStartNumber" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="1001">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">คำนำหน้าเลขที่</label>
+                                <input type="text" id="receiptPrefix" class="w-full px-3 py-2 border border-gray-300 rounded-md" value="LH">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="saveSettings()" class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition duration-200">
+                         บันทึกการตั้งค่า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Receipt Modal -->
+    <div id="printModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div id="receiptContent" class="print-only">
+                <!-- Receipt content will be generated here -->
+            </div>
+            <div class="no-print">
+                <h3 class="text-lg font-semibold mb-4"> พิมพ์ใบเสร็จ</h3>
+                <div id="receiptPreview" class="border p-4 mb-4 text-sm">
+                    <!-- Receipt preview will be shown here -->
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="window.print()" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                         พิมพ์
+                    </button>
+                    <button onclick="closePrintModal()" class="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700">
+                         ปิด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let services = JSON.parse(localStorage.getItem('services') || '[]');
+        let staff = JSON.parse(localStorage.getItem('staff') || '[]');
+        let receiptCounter = parseInt(localStorage.getItem('receiptCounter') || '1001');
+        let currentService = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            generateReceiptNumber();
+            loadStaff();
+            loadRecentServices();
+            loadServiceHistory();
+            loadStaffList();
+            
+            // Add default staff if none exist
+            if (staff.length === 0) {
+                staff = [
+                    { id: 1, name: 'คุณแอน', position: 'ช่างหลัก', phone: '081-234-5678' },
+                    { id: 2, name: 'คุณนิด', position: 'ช่างหลัก', phone: '082-345-6789' },
+                    { id: 3, name: 'คุณมิ้น', position: 'ผู้ช่วย', phone: '083-456-7890' }
+                ];
+                localStorage.setItem('staff', JSON.stringify(staff));
+                loadStaff();
+                loadStaffList();
+            }
+        });
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            };
+            const timeOptions = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            };
+            
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('th-TH', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('th-TH', timeOptions);
+        }
+
+        // Generate receipt number
+        function generateReceiptNumber() {
+            const prefix = localStorage.getItem('receiptPrefix') || 'LH';
+            const today = new Date();
+            const dateStr = today.getFullYear().toString().substr(-2) + 
+                           (today.getMonth() + 1).toString().padStart(2, '0') + 
+                           today.getDate().toString().padStart(2, '0');
+            document.getElementById('receiptNumber').value = `${prefix}${dateStr}-${receiptCounter.toString().padStart(4, '0')}`;
+        }
+
+        // Tab management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('[id$="Tab"]').forEach(tab => {
+                tab.classList.remove('text-purple-600', 'border-b-2', 'border-purple-600');
+                tab.classList.add('text-gray-500');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            
+            // Add active class to selected tab
+            const activeTab = document.getElementById(tabName + 'Tab');
+            activeTab.classList.remove('text-gray-500');
+            activeTab.classList.add('text-purple-600', 'border-b-2', 'border-purple-600');
+        }
+
+        // Load staff into dropdowns
+        function loadStaff() {
+            const mainStylistSelect = document.getElementById('mainStylist');
+            const assistantSelect = document.getElementById('assistant');
+            
+            // Clear existing options
+            mainStylistSelect.innerHTML = '<option value="">เลือกช่าง</option>';
+            assistantSelect.innerHTML = '<option value="">เลือกผู้ช่วย</option>';
+            
+            staff.forEach(person => {
+                if (person.position === 'ช่างหลัก') {
+                    mainStylistSelect.innerHTML += `<option value="${person.name}">${person.name}</option>`;
+                }
+                if (person.position === 'ผู้ช่วย') {
+                    assistantSelect.innerHTML += `<option value="${person.name}">${person.name}</option>`;
+                }
+            });
+        }
+
+        // Service form submission
+        document.getElementById('serviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const service = {
+                id: Date.now(),
+                receiptNumber: document.getElementById('receiptNumber').value,
+                branch: document.getElementById('branch').value,
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                serviceType: document.getElementById('serviceType').value,
+                mainStylist: document.getElementById('mainStylist').value,
+                assistant: document.getElementById('assistant').value,
+                price: parseFloat(document.getElementById('price').value),
+                discount: parseFloat(document.getElementById('discount').value) || 0,
+                notes: document.getElementById('notes').value,
+                date: new Date().toISOString(),
+                total: parseFloat(document.getElementById('price').value) - (parseFloat(document.getElementById('discount').value) || 0)
+            };
+            
+            services.unshift(service);
+            localStorage.setItem('services', JSON.stringify(services));
+            
+            // Update receipt counter
+            receiptCounter++;
+            localStorage.setItem('receiptCounter', receiptCounter.toString());
+            
+            // Store current service for printing
+            currentService = service;
+            
+            // Send to Google Sheets automatically
+            sendToGoogleSheets(service).then(success => {
+                if (success) {
+                    console.log('? ส่งข้อมูลไป Google Sheets เรียบร้อยแล้ว');
+                } else {
+                    console.log('?? ไม่สามารถส่งข้อมูลไป Google Sheets ได้');
+                }
+            });
+            
+            // Reset form and update displays
+            this.reset();
+            generateReceiptNumber();
+            loadRecentServices();
+            loadServiceHistory();
+            
+            alert('? บันทึกข้อมูลเรียบร้อยแล้ว!');
+        });
+
+        // Staff form submission
+        document.getElementById('staffForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newStaff = {
+                id: Date.now(),
+                name: document.getElementById('staffName').value,
+                position: document.getElementById('staffPosition').value,
+                phone: document.getElementById('staffPhone').value
+            };
+            
+            staff.push(newStaff);
+            localStorage.setItem('staff', JSON.stringify(staff));
+            
+            this.reset();
+            loadStaff();
+            loadStaffList();
+            
+            alert('? เพิ่มพนักงานเรียบร้อยแล้ว!');
+        });
+
+        // Load recent services
+        function loadRecentServices() {
+            const recentServicesDiv = document.getElementById('recentServices');
+            const recentServices = services.slice(0, 5);
+            
+            if (recentServices.length === 0) {
+                recentServicesDiv.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูลบริการ</p>';
+                return;
+            }
+            
+            recentServicesDiv.innerHTML = recentServices.map(service => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-medium text-gray-800">${service.customerName}</h3>
+                            <p class="text-sm text-gray-600">${service.serviceType} - ${service.mainStylist}</p>
+                            <p class="text-sm text-gray-500">${new Date(service.date).toLocaleString('th-TH')}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-purple-600">฿${service.total.toLocaleString()}</p>
+                            <p class="text-xs text-gray-500">${service.receiptNumber}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load service history
+        function loadServiceHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            
+            if (services.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">ยังไม่มีข้อมูลประวัติการบริการ</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = services.map(service => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-2 text-sm">${service.receiptNumber}</td>
+                    <td class="px-4 py-2 text-sm">${new Date(service.date).toLocaleDateString('th-TH')}</td>
+                    <td class="px-4 py-2 text-sm">${service.customerName}</td>
+                    <td class="px-4 py-2 text-sm">${service.serviceType}</td>
+                    <td class="px-4 py-2 text-sm">${service.mainStylist}</td>
+                    <td class="px-4 py-2 text-sm">฿${service.total.toLocaleString()}</td>
+                    <td class="px-4 py-2 text-sm">
+                        <button onclick="editService(${service.id})" class="text-blue-600 hover:text-blue-800 mr-2">??</button>
+                        <button onclick="deleteService(${service.id})" class="text-red-600 hover:text-red-800">???</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load staff list
+        function loadStaffList() {
+            const staffListDiv = document.getElementById('staffList');
+            
+            if (staff.length === 0) {
+                staffListDiv.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูลพนักงาน</p>';
+                return;
+            }
+            
+            staffListDiv.innerHTML = staff.map(person => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-medium text-gray-800">${person.name}</h3>
+                            <p class="text-sm text-gray-600">${person.position}</p>
+                            <p class="text-sm text-gray-500">${person.phone}</p>
+                        </div>
+                        <button onclick="deleteStaff(${person.id})" class="text-red-600 hover:text-red-800">
+                            ??? ลบ
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Print receipt
+        function printReceipt() {
+            if (!currentService) {
+                alert(' กรุณาบันทึกข้อมูลก่อนพิมพ์ใบเสร็จ');
+                return;
+            }
+            
+            const receiptContent = `
+                <div style="text-align: center; font-family: 'Sarabun', sans-serif; max-width: 300px; margin: 0 auto;">
+                    <h2 style="margin: 0; font-size: 18px;">?? ${currentService.branch}</h2>
+                    <p style="margin: 5px 0; font-size: 12px;">ใบเสร็จรับเงิน</p>
+                    <hr style="margin: 10px 0;">
+                    
+                    <div style="text-align: left; font-size: 12px;">
+                        <p><strong>เลขที่:</strong> ${currentService.receiptNumber}</p>
+                        <p><strong>วันที่:</strong> ${new Date(currentService.date).toLocaleString('th-TH')}</p>
+                        <p><strong>ลูกค้า:</strong> ${currentService.customerName}</p>
+                        ${currentService.customerPhone ? `<p><strong>เบอร์:</strong> ${currentService.customerPhone}</p>` : ''}
+                        <hr style="margin: 10px 0;">
+                        
+                        <p><strong>บริการ:</strong> ${currentService.serviceType}</p>
+                        <p><strong>ช่างหลัก:</strong> ${currentService.mainStylist}</p>
+                        ${currentService.assistant ? `<p><strong>ผู้ช่วย:</strong> ${currentService.assistant}</p>` : ''}
+                        <hr style="margin: 10px 0;">
+                        
+                        <p style="display: flex; justify-content: space-between;"><span>ราคา:</span><span>฿${currentService.price.toLocaleString()}</span></p>
+                        ${currentService.discount > 0 ? `<p style="display: flex; justify-content: space-between;"><span>ส่วนลด:</span><span>-฿${currentService.discount.toLocaleString()}</span></p>` : ''}
+                        <hr style="margin: 10px 0;">
+                        <p style="display: flex; justify-content: space-between; font-weight: bold;"><span>รวมทั้งสิ้น:</span><span>฿${currentService.total.toLocaleString()}</span></p>
+                        
+                        ${currentService.notes ? `<hr style="margin: 10px 0;"><p><strong>หมายเหตุ:</strong> ${currentService.notes}</p>` : ''}
+                    </div>
+                    
+                    <hr style="margin: 10px 0;">
+                    <p style="text-align: center; font-size: 10px; margin: 5px 0;">ขอบคุณที่ใช้บริการ</p>
+                    <p style="text-align: center; font-size: 10px; margin: 0;"> สวยใสเป็นธรรมชาติ </p>
+                </div>
+            `;
+            
+            document.getElementById('receiptPreview').innerHTML = receiptContent;
+            document.getElementById('receiptContent').innerHTML = receiptContent;
+            document.getElementById('printModal').classList.remove('hidden');
+            document.getElementById('printModal').classList.add('flex');
+        }
+
+        function closePrintModal() {
+            document.getElementById('printModal').classList.add('hidden');
+            document.getElementById('printModal').classList.remove('flex');
+        }
+
+        // Edit service
+        function editService(id) {
+            const service = services.find(s => s.id === id);
+            if (!service) return;
+            
+            // Fill form with service data
+            document.getElementById('receiptNumber').value = service.receiptNumber;
+            document.getElementById('branch').value = service.branch;
+            document.getElementById('customerName').value = service.customerName;
+            document.getElementById('customerPhone').value = service.customerPhone;
+            document.getElementById('serviceType').value = service.serviceType;
+            document.getElementById('mainStylist').value = service.mainStylist;
+            document.getElementById('assistant').value = service.assistant;
+            document.getElementById('price').value = service.price;
+            document.getElementById('discount').value = service.discount;
+            document.getElementById('notes').value = service.notes;
+            
+            // Switch to customer tab
+            showTab('customer');
+            
+            // Remove the service from array (will be re-added when form is submitted)
+            services = services.filter(s => s.id !== id);
+            localStorage.setItem('services', JSON.stringify(services));
+            
+            loadRecentServices();
+            loadServiceHistory();
+        }
+
+        // Delete service
+        function deleteService(id) {
+            if (confirm('คุณต้องการลบข้อมูลนี้หรือไม่?')) {
+                services = services.filter(s => s.id !== id);
+                localStorage.setItem('services', JSON.stringify(services));
+                loadRecentServices();
+                loadServiceHistory();
+            }
+        }
+
+        // Delete staff
+        function deleteStaff(id) {
+            if (confirm('คุณต้องการลบพนักงานคนนี้หรือไม่?')) {
+                staff = staff.filter(s => s.id !== id);
+                localStorage.setItem('staff', JSON.stringify(staff));
+                loadStaff();
+                loadStaffList();
+            }
+        }
+
+        // Google Sheets Configuration
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEzGfE1f5WGeiXL0GvcOJpB3fCXg6L2ya0p9emeG4T8qH8zIsCqmz5xVOZ_8YXBH6l/exec';
+        const SHEET_ID = '1cCdvG4JJHmwqFPL_JBvWF6J8AcLUWkSsmkWRzRt1t3w';
+
+        // Send data to Google Sheets
+        async function sendToGoogleSheets(serviceData) {
+            try {
+                const payload = {
+                    sheetId: SHEET_ID,
+                    receiptNumber: serviceData.receiptNumber,
+                    branch: serviceData.branch,
+                    date: serviceData.date,
+                    customerName: serviceData.customerName,
+                    customerPhone: serviceData.customerPhone || '',
+                    serviceType: serviceData.serviceType,
+                    mainStylist: serviceData.mainStylist,
+                    assistant: serviceData.assistant || '',
+                    price: serviceData.price,
+                    discount: serviceData.discount,
+                    total: serviceData.total,
+                    notes: serviceData.notes || ''
+                };
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                return true; // no-cors mode doesn't allow reading response
+            } catch (error) {
+                console.error('Error sending to Google Sheets:', error);
+                return false;
+            }
+        }
+
+        // Export all data to Google Sheets
+        async function exportToGoogleSheets() {
+            if (services.length === 0) {
+                alert(' ไม่มีข้อมูลให้ส่ง');
+                return;
+            }
+
+            const exportBtn = document.querySelector('[onclick="exportToGoogleSheets()"]');
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = ' กำลังส่งข้อมูล...';
+            exportBtn.disabled = true;
+
+            try {
+                // Send all services to Google Sheets
+                for (let i = 0; i < services.length; i++) {
+                    await sendToGoogleSheets(services[i]);
+                    // Small delay to avoid overwhelming the API
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                alert(` ส่งข้อมูล ${services.length} รายการไปยัง Google Sheets เรียบร้อยแล้ว!`);
+            } catch (error) {
+                alert('? เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+            } finally {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+            }
+        }
+
+        // Save settings
+        function saveSettings() {
+            const startNumber = document.getElementById('receiptStartNumber').value;
+            const prefix = document.getElementById('receiptPrefix').value;
+            
+            localStorage.setItem('receiptCounter', startNumber);
+            localStorage.setItem('receiptPrefix', prefix);
+            
+            receiptCounter = parseInt(startNumber);
+            generateReceiptNumber();
+            
+            alert(' บันทึกการตั้งค่าเรียบร้อยแล้ว!');
+        }
+
+        // Search functionality
+        document.getElementById('searchHistory').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredServices = services.filter(service => 
+                service.customerName.toLowerCase().includes(searchTerm) ||
+                service.serviceType.toLowerCase().includes(searchTerm) ||
+                service.mainStylist.toLowerCase().includes(searchTerm)
+            );
+            
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = filteredServices.map(service => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-2 text-sm">${service.receiptNumber}</td>
+                    <td class="px-4 py-2 text-sm">${new Date(service.date).toLocaleDateString('th-TH')}</td>
+                    <td class="px-4 py-2 text-sm">${service.customerName}</td>
+                    <td class="px-4 py-2 text-sm">${service.serviceType}</td>
+                    <td class="px-4 py-2 text-sm">${service.mainStylist}</td>
+                    <td class="px-4 py-2 text-sm">฿${service.total.toLocaleString()}</td>
+                    <td class="px-4 py-2 text-sm">
+                        <button onclick="editService(${service.id})" class="text-blue-600 hover:text-blue-800 mr-2">??</button>
+                        <button onclick="deleteService(${service.id})" class="text-red-600 hover:text-red-800">???</button>
+                    </td>
+                </tr>
+            `).join('');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96f61162b0532715',t:'MTc1NTIzMzM5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
